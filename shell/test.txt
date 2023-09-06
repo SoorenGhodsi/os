@@ -1,194 +1,10 @@
 g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG   -c -o main.o main.cc
 g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG -o msh main.o
 python3 shell_test.py
-
-
-Failed test 'trivial command with extra vertical tab, exit status 0'
-Test input:
-  /bin/true
-  exit
-Actual stdout:
-  > /bin/true exit status: 1
-  > 
-Actual stderr:
-  Command not found.
-  
-Expected stdout regular expression pattern:
-  > .*[Ee]xit status: 0.*
-  > 
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find a match for pattern [> .*[Ee]xit status: 0.*] in line [> /bin/true exit status: 1]
-  in stdout: could not find a match for pattern [> .*[Ee]xit status: 0.*] in line [> ]
-  in stdout: could not find match for pattern [> .*[Ee]xit status: 0.*] in ['> \x0b/bin/true exit status: 1', '> ']
-  in stderr: unexpected extra output [['Command not found.']]
-
-
-
-
-
-Failed test 'only redirections is invalid'
-Test input:
-  > foo.txt < test/input.txt
-  exit
-Actual stdout:
-  > 
-Actual stderr:
-  main.cc:98:15: runtime error: null pointer passed as argument 1, which is declared to never be null
-  AddressSanitizer:DEADLYSIGNAL
-  /usr/include/c++/11/debug/vector:438:
-  In function:
-      std::debug::vector<_Tp, _Allocator>::reference std::debug::vector<_Tp, 
-  [plus 13 more lines, not shown]
-Sanitizer output (child processes):
-  =================================================================
-  ==1005610==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x7f890e7468a4 bp 0x7fff36ee7d30 sp 0x7fff36ee7cb0 T0)
-  ==1005610==The signal is caused by a READ memory access.
-  ==1005610==Hint: address points to the zero page.
-      #0 0x7f890e7468a4 in __execvpe_common posix/execvpe.c:75
-  [plus 10 more lines, not shown]
-Expected stdout regular expression pattern: (extra lines allowed)
-  <empty>
-Expected stderr regular expression pattern: (extra lines allowed)
-  .*invalid command.*
-Errors:
-  in stderr: could not find match for pattern [.*invalid command.*] in ['main.cc:98:15: runtime error: null pointer passed as argument 1, which is declared to never be null', 'AddressSanitizer:DEADLYSIGNAL', '/usr/include/c++/11/debug/vector:438:', 'In function:', '    std::debug::vector<_Tp, _Allocator>::reference std::debug::vector<_Tp, ', '    _Allocator>::operator[](std::debug::vector<_Tp, _Allocator>::size_type) ', '    [with _Tp = const char*; _Allocator = std::allocator<const char*>; std::', '    debug::vector<_Tp, _Allocator>::reference = const char*&; std::', '    debug::vector<_Tp, _Allocator>::size_type = long unsigned int]', '', 'Error: attempt to subscript container with out-of-bounds index 0, but ', 'container only holds 0 elements.', '', 'Objects involved in the operation:', '    sequence "this" @ 0x7fff36ee8310 {', '      type = std::debug::vector<char const*, std::allocator<char const*> >;', '    }']
-
-
-
-
-
-Failed test 'redirection to nothing is invalid'
-Test input:
-  /bin/true > 
-  exit
-Actual stdout:
-  > > 
-Actual stderr:
-  Error: No output file specified.
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  <empty>
-Expected stderr regular expression pattern: (extra lines allowed)
-  .*invalid command.*
-Errors:
-  in stderr: could not find match for pattern [.*invalid command.*] in ['Error: No output file specified.']
-
-
-
-
-
-Failed test 'redirection from nothing is invalid'
-Test input:
-  /bin/true < 
-  exit
-Actual stdout:
-  > > 
-Actual stderr:
-  Error: No input file specified.
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  <empty>
-Expected stderr regular expression pattern: (extra lines allowed)
-  .*invalid command.*
-Errors:
-  in stderr: could not find match for pattern [.*invalid command.*] in ['Error: No input file specified.']
-
-
-
-
-
-Failed test 'extra whitespace without redirects'
-Test input:
-     		 /bin/echo	testing    one   two three 
-  exit
-Actual stdout:
-  > testing one two three
-  /bin/echo exit status: 0
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern:
-  > testing one two three
-  .*exit status: 0.*
-  > 
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find a match for pattern [> testing one two three] in line [> testing one two three]
-  in stdout: could not find a match for pattern [> testing one two three] in line [/bin/echo exit status: 0]
-  in stdout: could not find a match for pattern [> testing one two three] in line [> ]
-  in stdout: could not find match for pattern [> testing one two three] in ['> testing one two \x0bthree', '/bin/echo exit status: 0', '> ']
-
-
-
 Sanitizer output (main process) for test fork fails:
-  ==1005681==LeakSanitizer has encountered a fatal error.
-  ==1005681==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
-  ==1005681==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
-
-
-Failed test 'exec fails'
-Test input:
-  test/invalid-exec
-  exit
-Actual stdout:
-  > test/invalid-exec exit status: 0
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  <empty>
-Expected stderr regular expression pattern: (extra lines allowed)
-  .+
-Errors:
-  in stderr: could not find match for pattern [.+] in []
-
-
-
-
-
-Failed test 'extra whitespace in redirect at beginning'
-Test input:
-    >    	test/redirect-stdout-output.txt	  /bin/echo	testing    one   two three 
-  exit
-Actual stdout:
-  > /bin/echo exit status: 0
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern:
-  .*exit status: 0.*
-  > 
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in created file test/redirect-stdout-output.txt: could not find a match for pattern [testing one two three] in line [testing one two three]
-  in created file test/redirect-stdout-output.txt: could not find match for pattern [testing one two three] in ['testing one two \x0bthree']
-
-
-
-
-
-Failed test 'redirect to operator is invalid'
-Test input:
-  /bin/false > > 
-  exit
-Actual stdout:
-  > /bin/false exit status: 1
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  <empty>
-Expected stderr regular expression pattern: (extra lines allowed)
-  .*invalid command.*
-Errors:
-  in stderr: could not find match for pattern [.*invalid command.*] in []
-
-
-
+  ==3900928==LeakSanitizer has encountered a fatal error.
+  ==3900928==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+  ==3900928==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
 
 
 Failed test 'pipe in the end without a command is invalid'
@@ -211,9 +27,9 @@ Errors:
 
 
 Sanitizer output (main process) for test fork fails in a pipeline:
-  ==1006195==LeakSanitizer has encountered a fatal error.
-  ==1006195==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
-  ==1006195==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+  ==3901549==LeakSanitizer has encountered a fatal error.
+  ==3901549==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+  ==3901549==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
 
 
 Failed test 'two command pipeline without arguments'
@@ -684,7 +500,7 @@ Errors:
 
 
 
-59 tests passed and 29 tests failed.
+67 tests passed and 21 tests failed.
 ---
 Note on interpreting test output patterns:
 All expected values matched against a "regular expression" where:

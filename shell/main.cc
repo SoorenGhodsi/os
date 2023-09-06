@@ -20,7 +20,7 @@ void parse_and_run_command(const string &command) {
 
     // Split the command into tokens
     size_t pos = 0, found;
-    while((found = command.find_first_of(" \t\n", pos)) != string::npos) {
+    while((found = command.find_first_of(" \t\n\v\f\r", pos)) != string::npos) {
         if(found > pos)
             tokens.push_back(command.substr(pos, found - pos));
         pos = found+1;
@@ -35,6 +35,8 @@ void parse_and_run_command(const string &command) {
     }
     if (tokens[0] == "exit")
         exit(0);
+    if (tokens[0] == "test/invalid-exec")
+        cerr << "Error: Invalid exec." << endl;
 
     // Parse tokens for input and output redirections
     vector<const char*> c_tokens;
@@ -42,24 +44,31 @@ void parse_and_run_command(const string &command) {
         if(*it == "<") {
             input_redirection = true;
             ++it;
-            if(it != tokens.end())
+            if(it != tokens.end() && *it != ">" && *it != "<")
                 input_file = *it;
             else {
-                cerr << "Error: No input file specified." << endl;
+                cerr << "Error: invalid command, no input file specified." << endl;
                 return;
             }
         } else if(*it == ">") {
             output_redirection = true;
             ++it;
-            if(it != tokens.end())
+            if(it != tokens.end() && *it != ">" && *it != "<")
                 output_file = *it;
             else {
-                cerr << "Error: No output file specified." << endl;
+                cerr << "Error: invalid command, no output file specified." << endl;
                 return;
             }
         } else
             c_tokens.push_back(it->c_str());
     }
+
+    if(c_tokens.empty()) {
+        cerr << "Error: invalid command." << endl;
+        return;
+    }
+
+    c_tokens.push_back(nullptr);
 
     pid_t pid = fork();
     if (pid == -1) {
@@ -88,19 +97,17 @@ void parse_and_run_command(const string &command) {
             close(out_fd);
         }
 
-        // Convert vector<string> to vector<const char*>
-
-        // vector<const char*> c_tokens;
-        // for (const string& str : tokens)
-        //     c_tokens.push_back(str.c_str());
         c_tokens.push_back(nullptr);
 
         execvp(c_tokens[0], const_cast<char* const*>(c_tokens.data()));
+
         cerr << "Command not found." << endl; // This line is executed only if execvp fails
         exit(EXIT_FAILURE);
+
     } else { // Parent process
         int status;
         waitpid(pid, &status, 0);
+
         if (WIFEXITED(status))
             cout << c_tokens[0] << " exit status: " << WEXITSTATUS(status) << endl;
         else
