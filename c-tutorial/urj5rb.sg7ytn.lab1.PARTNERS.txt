@@ -1,0 +1,4 @@
+Mehmet Yaylagul (urj5rb@virginia.edu)
+Sooren Ghodsi (sg7ytn@virginia.edu)
+
+We worked both in person and over Discord on the development and implementation of the code. Mehmet helped with drafting an initial solution and Sooren worked on troubleshooting and debugging. Both people contributed equally to the develpment and brainstorming.
