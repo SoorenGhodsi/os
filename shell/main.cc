@@ -1,18 +1,14 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <sstream>
+#include <vector>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <vector>
 
 using namespace std;
 
 void parse_and_run_command(const string &command) {
-    // TODO: Implement this.
-    /* Note that this is not the correct way to test for the exit command.
-       For example the command "   exit  " should also exit your shell. */
 
     vector<string> tokens;
     string input_file, output_file;
