@@ -43,7 +43,7 @@ void parse_and_run_command(const string &command) {
             if(it != tokens.end() && *it != ">" && *it != "<")
                 input_file = *it;
             else {
-                cerr << "Error: invalid command, no input file specified." << endl;
+                cerr << "Error: Invalid command, no input file specified." << endl;
                 return;
             }
         } else if(*it == ">") {
@@ -52,7 +52,7 @@ void parse_and_run_command(const string &command) {
             if(it != tokens.end() && *it != ">" && *it != "<")
                 output_file = *it;
             else {
-                cerr << "Error: invalid command, no output file specified." << endl;
+                cerr << "Error: Invalid command, no output file specified." << endl;
                 return;
             }
         } else
@@ -60,19 +60,13 @@ void parse_and_run_command(const string &command) {
     }
 
     if(c_tokens.empty()) {
-        cerr << "Error: invalid command." << endl;
+        cerr << "Error: Invalid command." << endl;
         return;
     }
-
     c_tokens.push_back(nullptr);
 
-    pid_t pid = fork();
-    if (pid == -1) {
-        cerr << "Fork failed." << endl;
-        return;
-    }
-
-    if (pid == 0) { // Child process
+    pid_t pid;
+    if ((pid = fork()) == 0) { // Child process
         if(input_redirection) {
             int in_fd = open(input_file.c_str(), O_RDONLY);
             if(in_fd == -1) {
@@ -93,23 +87,25 @@ void parse_and_run_command(const string &command) {
             close(out_fd);
         }
 
-        c_tokens.push_back(nullptr);
+        int retval = execvp(c_tokens[0], const_cast<char* const*>(c_tokens.data()));
+        if (retval < 0) {
+            cerr << "Error: Command not found." << endl; // This line is executed only if execvp fails
+            exit(EXIT_FAILURE);
+        }
 
-        execvp(c_tokens[0], const_cast<char* const*>(c_tokens.data()));
-
-        cerr << "Command not found." << endl; // This line is executed only if execvp fails
-        exit(EXIT_FAILURE);
-
-    } else { // Parent process
+    } else if (pid > 0) { // Parent process
         int status;
         waitpid(pid, &status, 0);
 
         if (WIFEXITED(status))
             cout << c_tokens[0] << " exit status: " << WEXITSTATUS(status) << endl;
         else
-            cerr << "Error: Child process terminated abnormally." << endl;
+            cerr << "Error: Child process did not exit correctly." << endl;
+            
+    } else {
+        cerr << "Error: Fork failed." << endl;
+        return;
     }
-
 }
 
 int main(void) {
