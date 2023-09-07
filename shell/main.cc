@@ -29,10 +29,12 @@ void parse_and_run_command(const string &command) {
         cerr << "Error: No command entered." << endl;
         return;
     }
+
     if (tokens[0] == "exit")
         exit(0);
+        
     if (tokens[0] == "test/invalid-exec")
-        cerr << "Error: Invalid exec." << endl;
+    cerr << "Error: Invalid exec." << endl;
 
     // Parse tokens for input and output redirections
     vector<const char*> c_tokens;
