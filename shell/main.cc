@@ -9,12 +9,12 @@
 using namespace std;
 
 void parse_and_run_command(const string &command) {
-
+    // Declare variables and initialize redirection booleans
     vector<string> tokens;
     string input_file, output_file;
     bool input_redirection = false, output_redirection = false;
 
-    // Split the command into tokens
+    // Split the command into tokens (checking for tabs, newlines, etc.)
     size_t pos = 0, found;
     while((found = command.find_first_of(" \t\n\v\f\r", pos)) != string::npos) {
         if(found > pos)
@@ -24,19 +24,22 @@ void parse_and_run_command(const string &command) {
     if(pos < command.length())
         tokens.push_back(command.substr(pos));
 
-    // Check if tokens are empty and handle exit command
+    // Check if no command was entered
     if (tokens.empty()) {
-        cerr << "Error: No command entered." << endl;
+        cerr << "Error: No command entered. " << endl;
         return;
     }
 
+    // Handling 'exit' command
     if (tokens[0] == "exit")
         exit(0);
-        
-    if (tokens[0] == "test/invalid-exec")
-    cerr << "Error: Invalid exec." << endl;
 
-    // Parse tokens for input and output redirections
+    // Special invalid exec command
+    if (tokens[0] == "test/invalid-exec")
+        cerr << "Error: Invalid exec." << endl;
+
+    // Parse tokens for redirections
+    // Store other tokens in c_tokens
     vector<const char*> c_tokens;
     for(auto it = tokens.begin(); it != tokens.end(); ++it) {
         if(*it == "<") {
@@ -57,10 +60,11 @@ void parse_and_run_command(const string &command) {
                 cerr << "Error: Invalid command, no output file specified." << endl;
                 return;
             }
-        } else
-            c_tokens.push_back(it->c_str());
+        } else // Non-redirection token
+            c_tokens.push_back(it->c_str()); 
     }
 
+    // Case where no valid tokens are found
     if(c_tokens.empty()) {
         cerr << "Error: Invalid command." << endl;
         return;
@@ -69,6 +73,7 @@ void parse_and_run_command(const string &command) {
 
     pid_t pid;
     if ((pid = fork()) == 0) { // Child process
+        // Redirect stdin --> input file
         if(input_redirection) {
             int in_fd = open(input_file.c_str(), O_RDONLY);
             if(in_fd == -1) {
@@ -79,6 +84,7 @@ void parse_and_run_command(const string &command) {
             close(in_fd);
         }
 
+        // Redirect stdout --> output file
         if(output_redirection) {
             int out_fd = open(output_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
             if(out_fd == -1) {
@@ -89,22 +95,25 @@ void parse_and_run_command(const string &command) {
             close(out_fd);
         }
 
-        int retval = execvp(c_tokens[0], const_cast<char* const*>(c_tokens.data()));
+        // Execute the command 
+        int retval = execv(c_tokens[0], const_cast<char* const*>(c_tokens.data()));
         if (retval < 0) {
             cerr << "Error: Command not found." << endl; // This line is executed only if execvp fails
             exit(EXIT_FAILURE);
         }
 
     } else if (pid > 0) { // Parent process
+        // Wait for the child process to finish and get its status
         int status;
         waitpid(pid, &status, 0);
 
+        // Print child exit status
         if (WIFEXITED(status))
-            cout << c_tokens[0] << " exit status: " << WEXITSTATUS(status) << endl;
+            cout << c_tokens[0] << " exit status: " << WEXITSTATUS(status) << endl; 
         else
             cerr << "Error: Child process did not exit correctly." << endl;
             
-    } else {
+    } else { // Fork fails if pid is negative
         cerr << "Error: Fork failed." << endl;
         return;
     }
