@@ -7,6 +7,6 @@ Sooren Ghodsi (sg7ytn)
 
 Shell Assignment Part 1
 
-We equally worked to come up with the final version of the assignment. I helped to tokenize and pass the arguments. Sooren solved the issues regarding Fork() and exec(). And we both worked together on the file redirection. 
+We equally worked to come up with the final version of the assignment. I helped to tokenize and pass the arguments. Sooren solved the issues regarding fork() and exec(). And we both worked together on the file redirection. 
 
 We met 4 times to write the code and went to OHs to solve the issues behind the failed tests. 

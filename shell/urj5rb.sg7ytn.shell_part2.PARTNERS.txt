@@ -1,0 +1,12 @@
+Partner File 
+
+Mehmet Faruk Yaylagul (urj5rb)
+Sooren Ghodsi (sg7ytn)
+
+
+
+Shell Assignment Part 2
+
+We worked together to come up with the pipeline method that handles pipe commands. Mehmet worked on the set up for the execute_pipeline() function and handled the initial test cases. Sooren worked on the debugging for the remaining test cases and implementing the remaining functionalities. 
+
+We met a couple of times online to brainstorm and go over how to come up with the solution.

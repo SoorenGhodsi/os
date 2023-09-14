@@ -2,54 +2,11 @@ g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=unde
 g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG -o msh main.o
 python3 shell_test.py
 Sanitizer output (main process) for test fork fails:
-  ==4179062==LeakSanitizer has encountered a fatal error.
-  ==4179062==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
-  ==4179062==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+  ==4191451==LeakSanitizer has encountered a fatal error.
+  ==4191451==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+  ==4191451==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
 Sanitizer output (main process) for test fork fails in a pipeline:
-  ==4179652==LeakSanitizer has encountered a fatal error.
-  ==4179652==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
-  ==4179652==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
-
-
-Failed test '100 pipelines (with limit of 50 open files)'
-Test input:
-  /bin/echo a test | /bin/sed -e s/test/xxx/
-  /bin/echo a test | /bin/sed -e s/test/xxx/
-  /bin/echo a test | /bin/sed -e s/test/xxx/
-  /bin/echo a test | /bin/sed -e s/test/xxx/
-  /bin/echo a test | /bin/sed -e s/test/xxx/
-  [plus 96 more lines, not shown]
-Actual stdout:
-  > /bin/echo exit status: 0
-  a xxx
-  /bin/sed exit status: 0
-  > /bin/echo exit status: 0
-  a xxx
-  [plus 134 more lines, not shown]
-Actual stderr:
-  Error: Failed to create a pipe. Maybe too many open files?
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  .*a xxx
-  .*a xxx
-  .*a xxx
-  .*a xxx
-  .*a xxx
-  [plus 95 more lines, not shown]
-Expected stderr regular expression pattern:
-  <empty>
-(This test also has some important extra setup code that might do something like restrict the number of file descriptors or child processes that can be created.)
-Errors:
-  in stdout: could not find match for pattern [.*a xxx] in ['/bin/sed exit status: 0', '> ']
-  in stderr: unexpected extra output [['Error: Failed to create a pipe. Maybe too many open files?']]
-
-
-
-87 tests passed and 1 tests failed.
----
-Note on interpreting test output patterns:
-All expected values matched against a "regular expression" where:
-    .* means any string (including empty strings)
-    .+ means any string (excluding empty strings)
-    everything is matched case-insensitively
-
+  ==4192046==LeakSanitizer has encountered a fatal error.
+  ==4192046==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+  ==4192046==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+88 tests passed and 0 tests failed.
