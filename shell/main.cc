@@ -12,6 +12,7 @@ void execute_pipeline(const vector<vector<const char*>> &commands, const string 
     int fds[2];
     pid_t pid;
     int in_fd = 0; 
+    vector<pid_t> child_pids; // To store the PID of each child process
     bool input_redirection = !input_file.empty();
     bool output_redirection = !output_file.empty();
 
@@ -26,7 +27,7 @@ void execute_pipeline(const vector<vector<const char*>> &commands, const string 
 
         if ((pid = fork()) == 0) {
             if (input_redirection && i == 0) {  
-                int in_fd = open(input_file.c_str(), O_RDONLY);
+                in_fd = open(input_file.c_str(), O_RDONLY);
                 if(in_fd == -1) {
                     cerr << "Error: Unable to open input file." << endl;
                     exit(EXIT_FAILURE);
@@ -55,26 +56,28 @@ void execute_pipeline(const vector<vector<const char*>> &commands, const string 
             execvp(commands[i][0], (char* const*)commands[i].data());
             cerr << "Error: Command not found." << endl;
             exit(EXIT_FAILURE);
+
         } else if (pid > 0) {
+            child_pids.push_back(pid);
             if (i != commands.size() - 1) {
                 close(fds[1]); 
                 in_fd = fds[0];
             }
-            
-            int status;
-            waitpid(pid, &status, 0); 
-
-            if (WIFEXITED(status))
-                cout << commands[i][0] << " exit status: " << WEXITSTATUS(status) << endl; 
-            else
-                cerr << "Error: Child process did not exit correctly." << endl;
-
-            if (i == commands.size() - 1 && in_fd != 0) {
+            if (i == commands.size() - 1 && in_fd != 0)
                 close(in_fd);
-            }
-        } else {
+        } else
             cerr << "Error: Pipe failed." << endl;
-        }
+    }
+
+    // After the loop, wait for all child processes to finish
+    for(size_t i = 0; i < child_pids.size(); i++) {
+        int status;
+        waitpid(child_pids[i], &status, 0);
+        
+        if (WIFEXITED(status))
+            cout << commands[i][0] << " exit status: " << WEXITSTATUS(status) << endl;
+        else
+            cerr << "Error: Child process did not exit correctly." << endl;
     }
 }
 
@@ -100,7 +103,6 @@ void parse_and_run_command(const string &command) {
 
     if (tokens[0] == "exit")
         exit(0);
-
     if (tokens[0] == "test/invalid-exec")
         cerr << "Error: Invalid exec." << endl;
 
@@ -134,9 +136,8 @@ void parse_and_run_command(const string &command) {
                 cerr << "Error: Invalid command, no output file specified." << endl;
                 return;
             }
-        } else {
+        } else
             current_command.push_back(it->c_str());
-        }
     }
 
     if(!current_command.empty()) {
@@ -144,18 +145,17 @@ void parse_and_run_command(const string &command) {
         pipeline_commands.push_back(current_command);
     }   
     else if (!pipeline_commands.empty()) {
-    cerr << "Error: Invalid command after |" << endl;
-    return;
+        cerr << "Error: Invalid command after |" << endl;
+        return;
     }
 
     if (pipeline_commands.empty()) {
         cerr << "Error: Invalid command." << endl;
-    return;
+        return;
     }
 
     if(pipeline_commands.size() > 1) {
         execute_pipeline(pipeline_commands, input_file, output_file);
-
         return;
     }
 
@@ -194,9 +194,9 @@ void parse_and_run_command(const string &command) {
             cout << c_tokens[0] << " exit status: " << WEXITSTATUS(status) << endl; 
         else
             cerr << "Error: Child process did not exit correctly." << endl;
-    } else { // Fork fails if pid is negative
+
+    } else// Fork fails if pid is negative
         cerr << "Error: Fork failed." << endl;
-    }
 }
 
 int main(void) {
