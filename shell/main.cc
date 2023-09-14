@@ -16,7 +16,6 @@ void execute_pipeline(const vector<vector<const char*>> &commands, const string 
     bool output_redirection = !output_file.empty();
 
     for(size_t i = 0; i < commands.size(); i++) {
-        
         // Check if we can create a new pipe
         if (i != commands.size() - 1) {
             if (pipe(fds) == -1) {
@@ -56,7 +55,7 @@ void execute_pipeline(const vector<vector<const char*>> &commands, const string 
             execvp(commands[i][0], (char* const*)commands[i].data());
             cerr << "Error: Command not found." << endl;
             exit(EXIT_FAILURE);
-        } else {
+        } else if (pid > 0) {
             if (i != commands.size() - 1) {
                 close(fds[1]); 
                 in_fd = fds[0];
@@ -73,6 +72,8 @@ void execute_pipeline(const vector<vector<const char*>> &commands, const string 
             if (i == commands.size() - 1 && in_fd != 0) {
                 close(in_fd);
             }
+        } else {
+            cerr << "Error: Pipe failed." << endl;
         }
     }
 }

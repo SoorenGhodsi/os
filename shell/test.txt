@@ -1,41 +1,14 @@
+g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG   -c -o main.o main.cc
+g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG -o msh main.o
 python3 shell_test.py
 Sanitizer output (main process) for test fork fails:
-  ==3241477==LeakSanitizer has encountered a fatal error.
-  ==3241477==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
-  ==3241477==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
-
-
-Failed test 'fork fails in a pipeline'
-Test input:
-  /bin/cat | /bin/cat | /bin/cat | /bin/cat
-  exit
-Actual stdout:
-  > /bin/cat exit status: 0
-  /bin/cat exit status: 0
-  /bin/cat exit status: 0
-  /bin/cat exit status: 0
-  > 
-Actual stderr:
-  
-Sanitizer output (main process):
-  ==3243485==LeakSanitizer has encountered a fatal error.
-  ==3243485==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
-  ==3243485==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
-Expected stdout regular expression pattern:
-  > > 
-Expected stderr regular expression pattern: (extra lines allowed)
-  .+
-(This test also has some important extra setup code that might do something like restrict the number of file descriptors or child processes that can be created.)
-Errors:
-  in stdout: could not find a match for pattern [> > ] in line [> /bin/cat exit status: 0]
-  in stdout: could not find a match for pattern [> > ] in line [/bin/cat exit status: 0]
-  in stdout: could not find a match for pattern [> > ] in line [/bin/cat exit status: 0]
-  in stdout: could not find a match for pattern [> > ] in line [/bin/cat exit status: 0]
-  in stdout: could not find a match for pattern [> > ] in line [> ]
-  [plus 2 more lines, not shown]
-
-
-
+  ==4051016==LeakSanitizer has encountered a fatal error.
+  ==4051016==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+  ==4051016==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
+Sanitizer output (main process) for test fork fails in a pipeline:
+  ==4051597==LeakSanitizer has encountered a fatal error.
+  ==4051597==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+  ==4051597==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
 
 
 Failed test 'large amount of data through pipe'
@@ -57,7 +30,7 @@ Errors:
 
 
 
-86 tests passed and 2 tests failed.
+87 tests passed and 1 tests failed.
 ---
 Note on interpreting test output patterns:
 All expected values matched against a "regular expression" where:
