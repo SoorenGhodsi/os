@@ -1,145 +1,8 @@
-g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG   -c -o main.o main.cc
-g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG -o msh main.o
 python3 shell_test.py
-
-
-Failed test 'only redirections is invalid'
-Test input:
-  > foo.txt < test/input.txt
-  exit
-Actual stdout:
-  > > 
-Actual stderr:
-  AddressSanitizer:DEADLYSIGNAL
-  Error: Child process did not exit correctly.
-  
-Sanitizer output (main process):
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:1572:12: runtime error: reference binding to null pointer of type 'std::vector<const char *>'
-  SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:1572:12 in 
-Sanitizer output (child processes):
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:1569:26: runtime error: member call on null pointer of type 'std::vector<const char *> *'
-  SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:1569:26 in 
-  =================================================================
-  ==19908==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x000102c0b0a4 bp 0x000102c0b0dc sp 0x00016d1faab0 T0)
-  ==19908==The signal is caused by a UNKNOWN memory access.
-  [plus 15 more lines, not shown]
-Expected stdout regular expression pattern: (extra lines allowed)
-  <empty>
-Expected stderr regular expression pattern: (extra lines allowed)
-  .*invalid command.*
-Errors:
-  in stderr: could not find match for pattern [.*invalid command.*] in ['AddressSanitizer:DEADLYSIGNAL', 'Error: Child process did not exit correctly.']
-
-
-
-
-
-Could not run incompatible test "redirect stdin inode" (try on a different machine)
-Test input:
-  /usr/bin/stat -L -c %i/%d /proc/self/fd/0 < test/input.txt
-  exit
-Expected stdout regular expression pattern:
-  <function <lambda> at 0x100a645e0>
-  .*exit status: 0.*
-  > 
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  Test case could not be run since it is not compatible with your system:
-  Linux-specific /proc/self/fd not found and used internally by test
-
-
-
-
-
-Could not run incompatible test "redirect input then use normal input" (try on a different machine)
-Test input:
-  /usr/bin/stat -L -c %F /proc/self/fd/0
-  /bin/cat < test/input.txt
-  /usr/bin/stat -L -c %F /proc/self/fd/0
-  exit
-Expected stdout regular expression pattern:
-  > fifo
-  .*exit status: 0.*
-  > This is an example input file.
-  Which has multiple lines.
-  .*exit status: 0.*
-  [plus 3 more lines, not shown]
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  Test case could not be run since it is not compatible with your system:
-  Linux-specific /proc/self/fd not found and used internally by test
-
-
-
-
-
-Could not run incompatible test "redirect input then use normal input (alternate)" (try on a different machine)
-Test input:
-  /usr/bin/stat -L -c %F /proc/self/fd/0
-  /bin/dd bs=1 status=none < test/input.txt
-  /usr/bin/stat -L -c %F /proc/self/fd/0
-  exit
-Expected stdout regular expression pattern:
-  > fifo
-  .*exit status: 0.*
-  > This is an example input file.
-  Which has multiple lines.
-  .*exit status: 0.*
-  [plus 3 more lines, not shown]
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  Test case could not be run since it is not compatible with your system:
-  Linux-specific /proc/self/fd not found and used internally by test and/or no version of "dd" with "status=none" support found (typical on OS X; try on a Linux machine instead)
-
-
-
-
-
-Could not run incompatible test "redirect stdin, then use other input (no arguments)" (try on a different machine)
-Test input:
-  /bin/cat < test/input.txt
-  test/statfd0.sh
-  exit
-Expected stdout regular expression pattern: (extra lines allowed)
-  > This is an example input file.
-  Which has multiple lines.
-  > fifo
-  > 
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  Test case could not be run since it is not compatible with your system:
-  Linux-specific /proc/self/fd not found and used internally by test
-
-
-
-
-
-Failed test 'pipe in the end without a command is invalid'
-Test input:
-  /bin/ls |
-  exit
-Actual stdout:
-  > Makefile
-  foo.txt
-  input.txt
-  main.cc
-  main.o
-  [plus 10 more lines, not shown]
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  <empty>
-Expected stderr regular expression pattern: (extra lines allowed)
-  .*invalid command.*
-Errors:
-  in stderr: could not find match for pattern [.*invalid command.*] in []
-
-
-
+Sanitizer output (main process) for test fork fails:
+  ==3241477==LeakSanitizer has encountered a fatal error.
+  ==3241477==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+  ==3241477==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
 
 
 Failed test 'fork fails in a pipeline'
@@ -147,141 +10,29 @@ Test input:
   /bin/cat | /bin/cat | /bin/cat | /bin/cat
   exit
 Actual stdout:
-  > > 
+  > /bin/cat exit status: 0
+  /bin/cat exit status: 0
+  /bin/cat exit status: 0
+  /bin/cat exit status: 0
+  > 
 Actual stderr:
   
+Sanitizer output (main process):
+  ==3243485==LeakSanitizer has encountered a fatal error.
+  ==3243485==HINT: For debugging, try setting environment variable LSAN_OPTIONS=verbosity=1:log_threads=1
+  ==3243485==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
 Expected stdout regular expression pattern:
   > > 
 Expected stderr regular expression pattern: (extra lines allowed)
   .+
 (This test also has some important extra setup code that might do something like restrict the number of file descriptors or child processes that can be created.)
 Errors:
-  in stderr: could not find match for pattern [.+] in []
-
-
-
-
-
-Failed test 'three command pipeline without arguments (status codes)'
-Test input:
-  test/example_out.sh | test/example_sed2.sh | test/example_sed.sh
-  exit
-Actual stdout:
-  > foo XXX YYY
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  .*test/example_out.sh.*exit status:.*0.*
-  .*test/example_sed2.sh.*exit status:.*0.*
-  .*test/example_sed.sh.*exit status:.*0.*
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find match for pattern [.*test/example_out.sh.*exit status:.*0.*] in ['> foo XXX YYY', '> ']
-
-
-
-
-
-Failed test '|s without spaces mixed with | with spaces (exit statuses)'
-Test input:
-  /bin/echo this|argument|has|pipes | /usr/bin/sed -e s/argument/XXX/
-  exit
-Actual stdout:
-  > this|XXX|has|pipes
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  .*exit status: 0.*
-  .*exit status: 0.*
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find match for pattern [.*exit status: 0.*] in ['> this|XXX|has|pipes', '> ']
-
-
-
-
-
-Failed test 'simple pipe exit status'
-Test input:
-  /bin/echo testing one two three | /usr/bin/sed -e s/one/XXX/
-  exit
-Actual stdout:
-  > testing XXX two three
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  .*exit status: 0.*
-  .*exit status: 0.*
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find match for pattern [.*exit status: 0.*] in ['> testing XXX two three', '> ']
-
-
-
-
-
-Failed test 'longer pipeline exit status (all 0s)'
-Test input:
-  /bin/echo testing one two three | /usr/bin/sed -e s/one/xxx/ | /usr/bin/sed -e s/two/yyy/
-  exit
-Actual stdout:
-  > testing xxx yyy three
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  .*exit status: 0.*
-  .*exit status: 0.*
-  .*exit status: 0.*
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find match for pattern [.*exit status: 0.*] in ['> testing xxx yyy three', '> ']
-
-
-
-
-
-Failed test 'pipeline with two exit status 1s and one 0 has 1s'
-Test input:
-  /usr/bin/true ignored 1 | /usr/bin/false ignored 2 | /usr/bin/false ignored 3
-  exit
-Actual stdout:
-  > > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  .*exit status: 1.*
-  .*exit status: 1.*
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find match for pattern [.*exit status: 1.*] in ['> > ']
-
-
-
-
-
-Failed test 'pipeline with two exit status 1s and one 0 has 0'
-Test input:
-  /usr/bin/true some ignored arugments | /usr/bin/false ignored argument | /usr/bin/false more ignored argument
-  exit
-Actual stdout:
-  > > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  .*exit status: 0.*
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find match for pattern [.*exit status: 0.*] in ['> > ']
+  in stdout: could not find a match for pattern [> > ] in line [> /bin/cat exit status: 0]
+  in stdout: could not find a match for pattern [> > ] in line [/bin/cat exit status: 0]
+  in stdout: could not find a match for pattern [> > ] in line [/bin/cat exit status: 0]
+  in stdout: could not find a match for pattern [> > ] in line [/bin/cat exit status: 0]
+  in stdout: could not find a match for pattern [> > ] in line [> ]
+  [plus 2 more lines, not shown]
 
 
 
@@ -289,7 +40,7 @@ Errors:
 
 Failed test 'large amount of data through pipe'
 Test input:
-  /usr/bin/head -c 1048576 /dev/zero | /bin/cat | /usr/bin/wc -c
+  /bin/head -c 1048576 /dev/zero | /bin/cat | /usr/bin/wc -c
   exit
 Actual stdout:
   
@@ -306,76 +57,7 @@ Errors:
 
 
 
-
-
-Failed test 'pipe with redirect at end'
-Test input:
-  test/example_out.sh | test/example_sed.sh > test/output.txt
-  exit
-Actual stdout:
-  > foo XXX baz
-  > 
-Actual stderr:
-  
-Expected stdout regular expression pattern:
-  > test/example_out.sh.*exit status: 0.*
-  test/example_sed.sh.*exit status: 0.*
-  > 
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find a match for pattern [> test/example_out.sh.*exit status: 0.*] in line [> foo XXX baz]
-  in stdout: could not find a match for pattern [> test/example_out.sh.*exit status: 0.*] in line [> ]
-  in stdout: could not find match for pattern [> test/example_out.sh.*exit status: 0.*] in ['> foo XXX baz', '> ']
-  file test/output.txt was not created
-
-
-
-
-
-Failed test 'pipe with redirect at beginning'
-Test input:
-  /bin/cat < test/input.txt  | /usr/bin/sed s/example/EXAMPLE/
-  exit
-Actual stdout:
-  > > 
-Actual stderr:
-  
-Expected stdout regular expression pattern: (extra lines allowed)
-  .*This is an EXAMPLE input file.
-  .*Which has multiple lines.
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find match for pattern [.*This is an EXAMPLE input file.] in ['> > ']
-
-
-
-
-
-Failed test 'pipe with redirect at beginning and end'
-Test input:
-  /bin/cat < test/input.txt  | /usr/bin/sed s/example/EXAMPLE/ > test/output.txt
-  exit
-Actual stdout:
-  > > 
-Actual stderr:
-  
-Expected stdout regular expression pattern:
-  > /bin/cat.*exit status: 0.*
-  /usr/bin/sed.*exit status: 0.*
-  > 
-Expected stderr regular expression pattern:
-  <empty>
-Errors:
-  in stdout: could not find a match for pattern [> /bin/cat.*exit status: 0.*] in line [> > ]
-  in stdout: could not find match for pattern [> /bin/cat.*exit status: 0.*] in ['> > ']
-  file test/output.txt was not created
-
-
-
-71 tests passed and 13 tests failed.
-4 tests were not compatible with this machine. (Most likely, they require a Linux machine.)
+86 tests passed and 2 tests failed.
 ---
 Note on interpreting test output patterns:
 All expected values matched against a "regular expression" where:
