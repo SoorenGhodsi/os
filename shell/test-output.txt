@@ -1,0 +1,117 @@
+g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG   -c -o main.o main.cc
+g++ -Wall -Werror -pedantic -Og -g -std=c++17 -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG -o msh main.o
+python3 shell_test.py
+
+
+Could not run incompatible test "redirect stdin inode" (try on a different machine)
+Test input:
+  /usr/bin/stat -L -c %i/%d /proc/self/fd/0 < test/input.txt
+  exit
+Expected stdout regular expression pattern:
+  <function <lambda> at 0x100c745e0>
+  .*exit status: 0.*
+  > 
+Expected stderr regular expression pattern:
+  <empty>
+Errors:
+  Test case could not be run since it is not compatible with your system:
+  Linux-specific /proc/self/fd not found and used internally by test
+
+
+
+
+
+Could not run incompatible test "redirect input then use normal input" (try on a different machine)
+Test input:
+  /usr/bin/stat -L -c %F /proc/self/fd/0
+  /bin/cat < test/input.txt
+  /usr/bin/stat -L -c %F /proc/self/fd/0
+  exit
+Expected stdout regular expression pattern:
+  > fifo
+  .*exit status: 0.*
+  > This is an example input file.
+  Which has multiple lines.
+  .*exit status: 0.*
+  [plus 3 more lines, not shown]
+Expected stderr regular expression pattern:
+  <empty>
+Errors:
+  Test case could not be run since it is not compatible with your system:
+  Linux-specific /proc/self/fd not found and used internally by test
+
+
+
+
+
+Could not run incompatible test "redirect input then use normal input (alternate)" (try on a different machine)
+Test input:
+  /usr/bin/stat -L -c %F /proc/self/fd/0
+  /bin/dd bs=1 status=none < test/input.txt
+  /usr/bin/stat -L -c %F /proc/self/fd/0
+  exit
+Expected stdout regular expression pattern:
+  > fifo
+  .*exit status: 0.*
+  > This is an example input file.
+  Which has multiple lines.
+  .*exit status: 0.*
+  [plus 3 more lines, not shown]
+Expected stderr regular expression pattern:
+  <empty>
+Errors:
+  Test case could not be run since it is not compatible with your system:
+  Linux-specific /proc/self/fd not found and used internally by test and/or no version of "dd" with "status=none" support found (typical on OS X; try on a Linux machine instead)
+
+
+
+
+
+Could not run incompatible test "redirect stdin, then use other input (no arguments)" (try on a different machine)
+Test input:
+  /bin/cat < test/input.txt
+  test/statfd0.sh
+  exit
+Expected stdout regular expression pattern: (extra lines allowed)
+  > This is an example input file.
+  Which has multiple lines.
+  > fifo
+  > 
+Expected stderr regular expression pattern:
+  <empty>
+Errors:
+  Test case could not be run since it is not compatible with your system:
+  Linux-specific /proc/self/fd not found and used internally by test
+
+
+
+
+
+Failed test 'large amount of data through pipe'
+Test input:
+  /usr/bin/head -c 1048576 /dev/zero | /bin/cat | /usr/bin/wc -c
+  exit
+Actual stdout:
+  
+Actual stderr:
+  <error output not available>
+Expected stdout regular expression pattern: (extra lines allowed)
+  .*1048576.*
+Expected stderr regular expression pattern:
+  <empty>
+Errors:
+  timed out after 30 seconds
+  in stdout: could not find match for pattern [.*1048576.*] in []
+  in stderr: unexpected extra output [['<error output not available>']]
+
+
+
+83 tests passed and 1 tests failed.
+4 tests were not compatible with this machine. (Most likely, they require a Linux machine.)
+---
+Note on interpreting test output patterns:
+All expected values matched against a "regular expression" where:
+    .* means any string (including empty strings)
+    .+ means any string (excluding empty strings)
+    everything is matched case-insensitively
+
