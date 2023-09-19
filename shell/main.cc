@@ -10,7 +10,7 @@ using namespace std;
 
 void execute_pipeline(const vector<vector<const char*>> &commands, const string &input_file, const string &output_file) {
     int fds[2]; // File descriptors for pipe
-    pid_t pid;  // Variable to store process ID
+    pid_t pid;
     int in_fd = 0; 
     vector<pid_t> child_pids; // Vector to store the process ID of each child
     bool input_redirection = !input_file.empty(); // Flag for input redirection
@@ -215,7 +215,6 @@ void parse_and_run_command(const string &command) {
 
         // Execute the command
         execvp(c_tokens[0], (char* const*)c_tokens.data());
-        // If execvp fails, print an error message
         cerr << "Error: Command not found." << endl;
         exit(EXIT_FAILURE);
 
@@ -237,12 +236,9 @@ void parse_and_run_command(const string &command) {
 // Main function
 int main(void) {
     string command;
-    // Print the prompt and get a line of input
     cout << "> ";
     while (getline(cin, command)) {
-        // Parse and execute the command
         parse_and_run_command(command);
-        // Print the prompt again
         cout << "> ";
     }
     return 0;
