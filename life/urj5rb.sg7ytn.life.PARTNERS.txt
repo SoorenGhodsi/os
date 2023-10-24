@@ -1,0 +1,10 @@
+Partner File 
+
+Mehmet Faruk Yaylagul (urj5rb)
+Sooren Ghodsi (sg7ytn)
+
+
+Game of Life
+
+
+Sooren and I (Faruk) worked together in person and came up with the parallelized version of the game of life using pthreads. We efficiently distributed the tasks across threads, ensuring synchronization and avoiding race conditions. Finally, we both tested and debugged the code to achieve matching results with the serial thread.
