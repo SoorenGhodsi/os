@@ -17,18 +17,18 @@ void* ThreadPool::Worker(void* p) {
             break;
         }
 
-        TaskBit taskBit = pool->task_queue.front();
+        TaskBit task_bit = pool->task_queue.front();
         pool->task_queue.pop_front();
         pthread_mutex_unlock(&pool->mutex);
 
-        taskBit.task->Run();
+        task_bit.task->Run();
 
         pthread_mutex_lock(&pool->mutex);
-        pool->task_finished[taskBit.name] = true;
+        pool->task_finished[task_bit.name] = true;
         pthread_cond_broadcast(&pool->cond);
         pthread_mutex_unlock(&pool->mutex);
 
-        delete taskBit.task;
+        delete task_bit.task;
     }
     return nullptr;
 }
