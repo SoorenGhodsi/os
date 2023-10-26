@@ -1,0 +1,15 @@
+Partner File 
+
+Mehmet Faruk Yaylagul (urj5rb)
+Sooren Ghodsi (sg7ytn)
+
+
+
+Thread Pool Assignment 
+
+
+We (Sooren and Faruk) collaborated on the thread pool assignment equally, working together to ensure a successful implementation. 
+Sooren was responsible for implementing essential parts of the ThreadPool class. 
+He created the Worker method, which manages task execution and cleanup within the worker threads, and implemented the ThreadPool constructor,initializing the thread pool and starting worker threads. 
+Additionally, we implemented the ThreadPool destructor, responsible for resource cleanup. 
+Faruk mostly worked on the SubmitTask, WaitForTask, and stop methods in the ThreadPool class. 

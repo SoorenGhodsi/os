@@ -1,3 +1,6 @@
+// Sooren Ghodsi (sg7ytn)
+// Mehmet Faruk Yaylagul (urj5rb)
+
 #ifndef POOL_H_
 #include <string>
 #include <pthread.h>
@@ -15,6 +18,7 @@ public:
     virtual void Run() = 0;  // implemented by subclass
 };
 
+// Wrapper that holds the task and its name.
 struct TaskBit {
     string name;
     Task* task;
@@ -28,14 +32,15 @@ struct TaskBit {
 class ThreadPool {
 private:
     int num_threads;
-    deque<TaskBit> task_queue;
-    map<string, bool> task_finished;
+    deque<TaskBit> queue; // queue to hold tasks waiting to run
+    map<string, bool> task_finished; // mapping task names to their finished status
 
     pthread_t* threads;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
-    bool stop_flag = false;
+    bool stop_flag = false; // flag that signals threads to stop
 
+    // Process tasks from the queue. Run by each thread.
     static void* Worker(void* p);
 
 public:
