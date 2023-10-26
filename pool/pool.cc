@@ -1,45 +1,43 @@
 #include "pool.h"
 
-Task::Task() {
+Task::Task() {}
 
-}
+Task::~Task() {}
 
-Task::~Task() {
-
-}
-
-void* ThreadPool::Worker(void* arg) {
-    ThreadPool* pool = (ThreadPool*) arg;
+void* ThreadPool::Worker(void* p) {
+    ThreadPool* pool = (ThreadPool*) p;
 
     while (true) {
-        pthread_mutex_lock(&pool->queueMutex);
-        while (pool->taskQueue.empty() && !pool->stopFlag.load())
-            pthread_cond_wait(&pool->condVar, &pool->queueMutex);
+        pthread_mutex_lock(&pool->mutex);
+        while (pool->task_queue.empty() && !pool->stop_flag)
+            pthread_cond_wait(&pool->cond, &pool->mutex);
 
-        if (pool->stopFlag.load() && pool->taskQueue.empty()) {
-            pthread_mutex_unlock(&pool->queueMutex);
+        if (pool->stop_flag && pool->task_queue.empty()) {
+            pthread_mutex_unlock(&pool->mutex);
             break;
         }
 
-        TaskWrapper taskWrapper = pool->taskQueue.front();
-        pool->taskQueue.pop_front();
-        pthread_mutex_unlock(&pool->queueMutex);
+        TaskBit taskBit = pool->task_queue.front();
+        pool->task_queue.pop_front();
+        pthread_mutex_unlock(&pool->mutex);
 
-        taskWrapper.task->Run();
+        taskBit.task->Run();
 
-        pthread_mutex_lock(&pool->queueMutex);
-        pool->taskFinished[taskWrapper.name] = true;
-        pthread_cond_broadcast(&pool->condVar);
-        pthread_mutex_unlock(&pool->queueMutex);
+        pthread_mutex_lock(&pool->mutex);
+        pool->task_finished[taskBit.name] = true;
+        pthread_cond_broadcast(&pool->cond);
+        pthread_mutex_unlock(&pool->mutex);
 
-        delete taskWrapper.task;
+        delete taskBit.task;
     }
     return nullptr;
 }
 
-ThreadPool::ThreadPool(int num_threads) : num_threads(num_threads), stopFlag(false) {
-    pthread_mutex_init(&queueMutex, nullptr);
-    pthread_cond_init(&condVar, nullptr);
+ThreadPool::ThreadPool(int num_threads) {
+    this->num_threads = num_threads;
+
+    pthread_mutex_init(&mutex, nullptr);
+    pthread_cond_init(&cond, nullptr);
 
     threads = new pthread_t[num_threads];
     for (int i = 0; i < num_threads; ++i)
@@ -48,29 +46,32 @@ ThreadPool::ThreadPool(int num_threads) : num_threads(num_threads), stopFlag(fal
 
 ThreadPool::~ThreadPool() {
     delete[] threads;
-    pthread_mutex_destroy(&queueMutex);
-    pthread_cond_destroy(&condVar);
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
 }
 
 void ThreadPool::SubmitTask(const string &name, Task *task) {
-    pthread_mutex_lock(&queueMutex);
-    taskQueue.push_back(TaskWrapper(name, task));
-    pthread_cond_signal(&condVar);
-    pthread_mutex_unlock(&queueMutex);
+    pthread_mutex_lock(&mutex);
+    task_queue.push_back(TaskBit(name, task));
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
 }
 
 void ThreadPool::WaitForTask(const string &name) {
-    pthread_mutex_lock(&queueMutex);
-    while (!taskFinished[name])
-        pthread_cond_wait(&condVar, &queueMutex);
+    pthread_mutex_lock(&mutex);
+    while (!task_finished[name])
+        pthread_cond_wait(&cond, &mutex);
 
-    taskFinished.erase(name);
-    pthread_mutex_unlock(&queueMutex);
+    task_finished.erase(name);
+    pthread_mutex_unlock(&mutex);
 }
 
 void ThreadPool::Stop() {
-    stopFlag.store(true);
-    pthread_cond_broadcast(&condVar);
+    pthread_mutex_lock(&mutex);
+    stop_flag = true;
+    pthread_mutex_unlock(&mutex);
+
+    pthread_cond_broadcast(&cond);
 
     for (int i = 0; i < num_threads; ++i)
         pthread_join(threads[i], nullptr);
