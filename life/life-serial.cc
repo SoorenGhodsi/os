@@ -11,11 +11,13 @@ void simulate_life_serial(LifeBoard &state, int steps) {
                 int live_in_window = 0;
                 /* For each cell, examine a 3x3 "window" of cells around it,
                  * and count the number of live (true) cells in the window. */
-                for (int y_offset = -1; y_offset <= 1; ++y_offset)
-                    for (int x_offset = -1; x_offset <= 1; ++x_offset)
-                        if (state.at(x + x_offset, y + y_offset))
+                for (int y_offset = -1; y_offset <= 1; ++y_offset) {
+                    for (int x_offset = -1; x_offset <= 1; ++x_offset) {
+                        if (state.at(x + x_offset, y + y_offset)) {
                             ++live_in_window;
-                            
+                        }
+                    }
+                }
                 /* Cells with 3 live neighbors remain or become live.
                    Live cells with 2 live neighbors remain live. */
                 next_state.at(x, y) = (

@@ -45,7 +45,7 @@ void* ThreadPool::Worker(void* p) {
     return nullptr;
 }
 
-// Constructor for threadpool: initializes threads, mutex, and condvar
+// Constructor for threadpool: initializes threads, mutex, and condaddressr
 ThreadPool::ThreadPool(int num_threads) {
     this->num_threads = num_threads;
 

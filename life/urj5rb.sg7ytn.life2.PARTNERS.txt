@@ -1,0 +1,12 @@
+Partner File 
+
+Mehmet Faruk Yaylagul (urj5rb)
+Sooren Ghodsi (sg7ytn)
+
+
+Game of Life
+
+
+Sooren and I (Faruk) worked together to figure out why our threads were not running in parallel for this lab. We came up with a different approach where we used the given life-serial.cc as the blueprint to our thread_worker() function. This time, calculating different start rows and end rows for our loops and synchronizing the threads right in the thread_worker() instead of the simulate_life_parallel().
+
+We then adjusted our simulate_life_parallel() function accordingly, making any minor tweaks necessary. Finally, we both tested and debugged the code to achieve matching results with the serial thread and improved efficiency with higher thread counts.

@@ -60,3 +60,8 @@ rviz/
 *.log
 *.bak
 *.swp
+
+# Large inode files
+inode/dragon.tiff
+inode/laptop_image
+inode/sample_disk_image
